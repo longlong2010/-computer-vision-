@@ -66,4 +66,5 @@ for y in range(0, h):
 		for i in range(0, 3):
 			out[y][x][i] = int(out[y][x][i] * contrast + (1 - contrast) * 125);
 
+out = cv2.blur(out, (5, 5))
 cv2.imwrite('out.jpg', out);
