@@ -1,7 +1,7 @@
 import numpy;
 import cv2;
 
-im = cv2.imread('test.jpg');
+im = cv2.imread('identity.jpg');
 h, w, _ = im.shape;
 gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY);
 cv2.imwrite('gray.jpg', gray);
@@ -44,7 +44,7 @@ for y in range(0, h):
 
 		for i in range(top, bottom):
 			for j in range(left, right):
-				intensity = int(coarseness * gray[i][j] / 255.0);
+				intensity = (coarseness * gray[i][j]) / 255;
 
 				countIntensity[intensity] += 1;
 				redAvg[intensity] += im[i][j][2];
@@ -66,5 +66,4 @@ for y in range(0, h):
 		for i in range(0, 3):
 			out[y][x][i] = int(out[y][x][i] * contrast + (1 - contrast) * 125);
 
-out = cv2.blur(out, (5, 5))
 cv2.imwrite('out.jpg', out);
