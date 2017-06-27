@@ -9,15 +9,14 @@ v0 = 15.0;
 dv = 30.0 / 90.0;
 
 #读取图片，计算宽高
-im = cv2.imread('test2.jpg');
+im = cv2.imread('test2.jpg', cv2.IMREAD_GRAYSCALE);
 h = numpy.size(im, 0);
 w = numpy.size(im, 1);
-#灰度处理
-gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY);
-edges = cv2.Canny(gray, 10, 140, 3);
+#边缘处理
+edges = cv2.Canny(im, 10, 140, 3);
 #识别圆和直线
 circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 2, w / 4);
-lines = cv2.HoughLinesP(edges, 1, numpy.pi / 180, 10, 100, 50);
+lines = cv2.HoughLinesP(edges, 1, numpy.pi / 180, 10, 100, 45);
 
 #取整个都在图片内的最大的一个圆
 circle_list = [];
@@ -30,7 +29,6 @@ for x in circle_list:
         c = x;
 cv2.circle(im, (c[0], c[1]), c[2], (255, 0, 0), 4);
 
-cv2.imwrite('out.jpg', im);
 #取与找到的圆的距离小于阈值的直线
 line_list = [];
 for x in lines:
