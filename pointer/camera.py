@@ -8,6 +8,9 @@ else:
     from Queue import Queue;
 import numpy;
 import math;
+import socket;
+import pickle;
+import struct;
 
 def process_image(im):
     v0 = 10.0;
@@ -58,22 +61,50 @@ class ProcessThread(threading.Thread):
         self.q = q;
     def run(self):
         while True:
-            if q.empty() == False:
+            if not self.q.empty():
                 im = self.q.get();
                 process_image(im);
                 
+class StreamServer(threading.Thread):
+    def __init__(self, q):
+        super(StreamServer, self).__init__();
+        self.q = q;
+    def run(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
+        s.bind(('0.0.0.0', 1987));
+        s.listen(1);
+        conn, addr = s.accept();
+        while True:
+            if not self.q.empty():
+                im = self.q.get();
+                data = pickle.dumps(im);
+                l = len(data);
+                try:
+                    conn.send(struct.pack('i', l));
+                    conn.send(data);
+                except:
+                    conn, addr = s.accept();
+                    
 
-cp = cv2.VideoCapture(0);
-if not cp.isOpened():
-    sys.exit();
-fps = cp.get(cv2.CAP_PROP_FPS) if cv2.__version__ >= '3' else 30;
-q = Queue(1);
-
-worker = ProcessThread(q);
-worker.start();
-while True:
-    ret, im = cp.read();
-    cv2.imshow('Video', im);
-    if q.empty():
-        q.put(im);
-    cv2.waitKey(int(1000 / fps));
+if __name__ == '__main__':
+    cp = cv2.VideoCapture(0);
+    if not cp.isOpened():
+        sys.exit();
+    fps = cp.get(cv2.CAP_PROP_FPS) if cv2.__version__ >= '3' else 30;
+    
+    q1 = Queue(1);
+    worker = ProcessThread(q1);
+    worker.start();
+    
+    q2 = Queue(1);
+    server = StreamServer(q2);
+    server.start();
+    
+    while True:
+        ret, im = cp.read();
+        #cv2.imshow('Video', im);
+        if q1.empty():
+            q1.put(im);
+        if q2.empty():
+            q2.put(im);
+        cv2.waitKey(int(1000 / fps));
