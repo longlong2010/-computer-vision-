@@ -1,7 +1,11 @@
+# -*- coding:utf-8 -*-
 import cv2;
 import sys;
 import threading;
-import queue;
+if sys.version_info[0] == 3:
+    from queue import Queue;
+else:
+    from Queue import Queue;
 import numpy;
 import math;
 
@@ -59,9 +63,9 @@ class ProcessThread(threading.Thread):
                 process_image(im);
                 
 
-cp = cv2.VideoCapture(0);
+cp = cv2.VideoCapture(1);
 fps = cp.get(cv2.CAP_PROP_FPS);
-q = queue.Queue(1);
+q = Queue(1);
 
 worker = ProcessThread(q);
 worker.start();
