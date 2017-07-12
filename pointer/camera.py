@@ -17,7 +17,7 @@ def process_image(im):
     #边缘处理
     edges = cv2.Canny(im, 10, 140, 3);
     #识别圆和直线
-    circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, 2, w / 4);
+    circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT if cv2.__version__ >= '3' else cv2.cv.CV_HOUGH_GRADIENT, 2, w / 4);
     lines = cv2.HoughLinesP(edges, 1, numpy.pi / 180, 10, 100, 30);
     if isinstance(circles, numpy.ndarray) == False or isinstance(lines, numpy.ndarray) == False:
         return im;
@@ -63,15 +63,16 @@ class ProcessThread(threading.Thread):
                 process_image(im);
                 
 
-cp = cv2.VideoCapture(1);
-fps = cp.get(cv2.CAP_PROP_FPS);
+cp = cv2.VideoCapture(0);
+if not cp.isOpened():
+    sys.exit();
+fps = cp.get(cv2.CAP_PROP_FPS) if cv2.__version__ >= '3' else 30;
 q = Queue(1);
 
 worker = ProcessThread(q);
 worker.start();
 while True:
     ret, im = cp.read();
-    #im = process_image(im);
     cv2.imshow('Video', im);
     if q.empty():
         q.put(im);
