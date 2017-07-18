@@ -110,7 +110,13 @@ if __name__ == '__main__':
 
         if worker.rs != "":
             cv2.putText(im, worker.rs, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2);
-        #cv2.imshow('Video', im);
+
+        hc = int(numpy.size(im, 0) / 2);
+        wc = int(numpy.size(im, 1) / 2);
+        cv2.line(im, (wc - 10, hc), (wc + 10, hc),(0, 255, 0), 2);
+        cv2.line(im, (wc, hc - 10), (wc, hc + 10),(0, 255, 0), 2);
+        cv2.circle(im, (wc, hc), 15, (0, 255, 0), 2);
         if q2.empty():
             q2.put(im);
+        #cv2.imshow('Video', im);
         cv2.waitKey(int(1000 / fps));
