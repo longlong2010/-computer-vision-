@@ -11,6 +11,7 @@ import math;
 import socket;
 import pickle;
 import struct;
+import time;
 
 def process_image(im):
     v0 = 10.0;
@@ -52,7 +53,8 @@ def process_image(im):
             sgn = 1 if t[0] >= 0 else -1;
             #计算指针和竖直方向的夹角
             val = v0 + dv * math.acos(numpy.dot(t, numpy.array([0, -1]) / numpy.linalg.norm(t))) * 180 / numpy.pi * sgn;
-            print(val);
+            t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()));
+            print("%s\t%f" % (t, val));
     return im;
 
 class ProcessThread(threading.Thread):
@@ -87,7 +89,7 @@ class StreamServer(threading.Thread):
                     
 
 if __name__ == '__main__':
-    cp = cv2.VideoCapture(0);
+    cp = cv2.VideoCapture(1);
     if not cp.isOpened():
         sys.exit();
     fps = cp.get(cv2.CAP_PROP_FPS) if cv2.__version__ >= '3' else 30;
