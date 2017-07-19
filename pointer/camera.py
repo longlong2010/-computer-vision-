@@ -4,14 +4,17 @@ import sys;
 import threading;
 if sys.version_info[0] == 3:
     from queue import Queue;
+    from http.server import BaseHTTPRequestHandler, HTTPServer;
 else:
     from Queue import Queue;
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer;
 import numpy;
 import math;
 import socket;
 import pickle;
 import struct;
 import time;
+import json;
 
 class ProcessThread(threading.Thread):
     def __init__(self, q):
@@ -68,9 +71,9 @@ class ProcessThread(threading.Thread):
                 im = self.q.get();
                 self.process_image(im);
                 
-class StreamServer(threading.Thread):
+class StreamService(threading.Thread):
     def __init__(self, q):
-        super(StreamServer, self).__init__();
+        super(StreamService, self).__init__();
         self.q = q;
     def run(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
@@ -88,6 +91,18 @@ class StreamServer(threading.Thread):
                 except:
                     conn, addr = s.accept();
                     
+class HTTPHandler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        pass;
+    def do_GET(self):
+        self.send_response(200);
+        self.end_headers();
+        self.wfile.write(json.dumps(worker.rs).encode());
+
+class HTTPService(threading.Thread):
+    def run(self):
+        httpd = HTTPServer(('0.0.0.0', 1990), HTTPHandler); 
+        httpd.serve_forever();
 
 if __name__ == '__main__':
     cp = cv2.VideoCapture(1);
@@ -100,8 +115,11 @@ if __name__ == '__main__':
     worker.start();
     
     q2 = Queue(1);
-    server = StreamServer(q2);
+    server = StreamService(q2);
     server.start();
+
+    httpd = HTTPService();
+    httpd.start();
     
     while True:
         ret, im = cp.read();
@@ -118,5 +136,5 @@ if __name__ == '__main__':
         cv2.circle(im, (wc, hc), 15, (0, 255, 0), 2);
         if q2.empty():
             q2.put(im);
-        #cv2.imshow('Video', im);
+        cv2.imshow('Video', im);
         cv2.waitKey(int(1000 / fps));
