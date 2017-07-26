@@ -21,6 +21,8 @@ class ProcessThread(threading.Thread):
         super(ProcessThread, self).__init__();
         self.q = q;
         self.rs = "";
+        self.t = time.time();
+        self.val = None;
     def process_image(self, im):
         v0 = 10.0;
         dv = 30.0 / 90.0;
@@ -29,7 +31,7 @@ class ProcessThread(threading.Thread):
         #边缘处理
         edges = cv2.Canny(im, 10, 140, 3);
         #识别圆和直线
-        circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT if cv2.__version__ >= '3' else cv2.cv.CV_HOUGH_GRADIENT, 2, w / 4);
+        circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT if cv2.__version__ >= '3' else cv2.cv.CV_HOUGH_GRADIENT, 2, w / 2);
         lines = cv2.HoughLinesP(edges, 1, numpy.pi / 180, 10, 100, 30);
         if isinstance(circles, numpy.ndarray) == False or isinstance(lines, numpy.ndarray) == False:
             return im;
@@ -60,9 +62,9 @@ class ProcessThread(threading.Thread):
                 t = t1 - t2 if numpy.linalg.norm(t1) > numpy.linalg.norm(t2) else t2 - t1;
                 sgn = 1 if t[0] >= 0 else -1;
                 #计算指针和竖直方向的夹角
-                val = v0 + dv * math.acos(numpy.dot(t, numpy.array([0, -1]) / numpy.linalg.norm(t))) * 180 / numpy.pi * sgn;
-                t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()));
-                self.rs = "%s  %f" % (t, val);
+                self.val = v0 + dv * math.acos(numpy.dot(t, numpy.array([0, -1]) / numpy.linalg.norm(t))) * 180 / numpy.pi * sgn;
+                self.t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()));
+                self.rs = "%s  %f" % (self.t, self.val);
                 print(self.rs);
         return im;
     def run(self):
@@ -96,8 +98,10 @@ class HTTPHandler(BaseHTTPRequestHandler):
         pass;
     def do_GET(self):
         self.send_response(200);
+        self.send_header('Content-type', 'application/json');
         self.end_headers();
-        self.wfile.write(json.dumps(worker.rs).encode());
+        obj = dict(t=worker.t, val=worker.val, rs=worker.rs);
+        self.wfile.write(json.dumps(obj).encode());
 
 class HTTPService(threading.Thread):
     def run(self):
