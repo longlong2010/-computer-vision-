@@ -64,7 +64,7 @@ class ProcessThread(threading.Thread):
                 #计算指针和竖直方向的夹角
                 self.val = v0 + dv * math.acos(numpy.dot(t, numpy.array([0, -1]) / numpy.linalg.norm(t))) * 180 / numpy.pi * sgn;
                 self.t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()));
-                self.rs = "%s  %f" % (self.t, self.val);
+                self.rs = "%s  %.3f" % (self.t, self.val);
                 print(self.rs);
         return im;
     def run(self):
@@ -109,7 +109,7 @@ class HTTPService(threading.Thread):
         httpd.serve_forever();
 
 if __name__ == '__main__':
-    cp = cv2.VideoCapture(1);
+    cp = cv2.VideoCapture(0);
     if not cp.isOpened():
         sys.exit();
     fps = cp.get(cv2.CAP_PROP_FPS) if cv2.__version__ >= '3' else 30;
@@ -129,15 +129,17 @@ if __name__ == '__main__':
         ret, im = cp.read();
         if q1.empty():
             q1.put(im);
-
-        if worker.rs != "":
-            cv2.putText(im, worker.rs, (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2);
-
-        hc = int(numpy.size(im, 0) / 2);
-        wc = int(numpy.size(im, 1) / 2);
+        h = numpy.size(im, 0);
+        w = numpy.size(im, 1);
+        hc = int(h / 2);
+        wc = int(w / 2);
         cv2.line(im, (wc - 10, hc), (wc + 10, hc),(0, 255, 0), 2);
         cv2.line(im, (wc, hc - 10), (wc, hc + 10),(0, 255, 0), 2);
         cv2.circle(im, (wc, hc), 15, (0, 255, 0), 2);
+        
+        cv2.putText(im, time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())), (20, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2);
+        if worker.rs != "":
+            cv2.putText(im, str(round(worker.val, 3)), (20, h - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2);
         if q2.empty():
             q2.put(im);
         cv2.imshow('Video', im);
