@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train</folder>
+	<filename>9.jpeg</filename>
+	<path>C:\Users\longlong\Desktop\images\train\9.jpeg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>400</width>
+		<height>400</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Doraemon</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>97</xmin>
+			<ymin>23</ymin>
+			<xmax>321</xmax>
+			<ymax>363</ymax>
+		</bndbox>
+	</object>
+</annotation>

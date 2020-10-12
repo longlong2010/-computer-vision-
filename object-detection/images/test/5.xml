@@ -1,0 +1,26 @@
+<annotation>
+	<folder>test</folder>
+	<filename>5.jpg</filename>
+	<path>C:\Users\longlong\Desktop\images\test\5.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>394</width>
+		<height>468</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>Doraemon</name>
+		<pose>Unspecified</pose>
+		<truncated>1</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>169</xmin>
+			<ymin>122</ymin>
+			<xmax>394</xmax>
+			<ymax>453</ymax>
+		</bndbox>
+	</object>
+</annotation>
